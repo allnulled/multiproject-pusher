@@ -40,6 +40,8 @@ const {
   install,
   push,
   versionate,
+  eval: codeEvaluation,
+  fileval: fileEvaluation
 } = parsedArgs;
 const multiprojectListPath = path.resolve(process.cwd(), multiprojectListPathInput);
 let multiprojectList = undefined;
@@ -74,12 +76,12 @@ for (let index = 0; index < multiprojectList.length; index++) {
 }
 
 let precommand = precommandInput;
-if(Array.isArray(precommandInput)) {
+if (Array.isArray(precommandInput)) {
   precommand = precommandInput.join(" ");
 }
-if(typeof precommand === "string") {
+if (typeof precommand === "string") {
   // @OK
-} else if(precommand === false) {
+} else if (precommand === false) {
   // @OK
 } else {
   throw new Error("Required argument «--precommand» to be a string or undefined on «multiproject-pusher.bin»");
@@ -127,13 +129,62 @@ const execute = async function () {
     commandArray = commandInput;
   }
 
-  if (typeof commandArray !== "object") {
-    throw new Error("Required argument «--command» to be a string or an array on «multiproject-pusher.bin»");
+  File_injection: {
+    let codeString = undefined;
+    if (typeof fileEvaluation === "undefined") {
+      // @OK
+    } else if (typeof fileEvaluation === "string") {
+      if(!fs.existsSync(fileEvaluation)) {
+        throw new Error("Required argument «--fileval» to be a existing file on «multiproject-pusher.bin»");
+      }
+      codeString = fs.readFileSync(fileEvaluation).toString();
+    } else {
+      throw new Error("Required argument «--fileval» to be a string or empty on «multiproject-pusher.bin»");
+    }
+    if(typeof codeString === "undefined") {
+      break File_injection;
+    }
+
+    Execute_it: {
+      await multiproject.inject(codeString);
+    }
   }
 
-  const commandString = commandArray.join(" ");
-  Execute_it: {
-    await multiproject.run(commandString);
+  Injection: {
+    let codeString = undefined;
+    if (typeof codeEvaluation === "undefined") {
+      // @OK
+    } else if (typeof codeEvaluation === "string") {
+      codeString = codeEvaluation;
+    } else if(typeof codeEvaluation === "object") {
+      codeString = codeEvaluation.join(" ");
+    } else {
+      throw new Error("Required argument «--eval» to be a string or an array on «multiproject-pusher.bin»");
+    }
+    if(typeof codeString === "undefined") {
+      break Injection;
+    }
+
+    Execute_it: {
+      await multiproject.inject(codeString);
+    }
+  }
+
+  Command: {
+    if (typeof commandArray === "undefined") {
+      // @OK
+    } else if (typeof commandArray !== "object") {
+      throw new Error("Required argument «--command» to be a string or an array on «multiproject-pusher.bin»");
+    }
+
+    if(typeof commandArray === "undefined") {
+      break Command;
+    }
+
+    const commandString = commandArray.join(" ");
+    Execute_it: {
+      await multiproject.run(commandString);
+    }
   }
 };
 

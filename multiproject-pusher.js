@@ -17,7 +17,7 @@ class Readliner {
     });
   }
 
-  ask(question, keepOpened = true) {
+  ask(question, keepOpened = false) {
     return new Promise((resolve) => {
       this.rl.question(question, (answer) => {
         resolve(answer);
@@ -131,6 +131,26 @@ class MultiprojectPusher {
       console.log(`✅ Finished versionating ${name}`);
     }
     console.log(`\n🎉 All projects have been run!`);
+  }
+
+  async inject(commandOrCallback) {
+    for (const project of this.projects) {
+      const { name, path: projectPathInput, source, sourceType = "git" } = project;
+      const projectPath = path.resolve(this.listBasepath, projectPathInput);
+      Inject_it: {
+        console.log(`\n📦 Injecting code on project «${name}» at «${projectPath}»`);
+        if(typeof commandOrCallback === "string") {
+          eval(commandOrCallback);
+        } else if(typeof commandOrCallback === "function") {
+          await commandOrCallback(projectPath, project);
+        } else {
+          console.log(commandOrCallback);
+          throw new Error("Required argument «commandOrCallback» to be a string or a function on «multiprojectPusher.inject»");
+        }
+      }
+      console.log(`✅ Finished injection on ${name}`);
+    }
+    console.log(`\n🎉 All projects have been injected!`);
   }
 
   executeCommand(command, workingDirectory) {
