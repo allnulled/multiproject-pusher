@@ -8,7 +8,7 @@ To manage multiple (git) projects from 1 source
 npm i -s @allnulled/multiproject-pusher
 ```
 
-## Usage
+## CLI
 
 From CLI:
 
@@ -49,6 +49,12 @@ module.exports = [{
 
 The paths of this file are relative to this file itself, not the current working directory.
 
+You can also use `--eval` to provide direct JavaScript from cmd.
+
+You can also use `--fileval` to provide the name of a file in JavaScript from cmd.
+
+## API
+
 The API works like this:
 
 ```js
@@ -71,3 +77,4 @@ This would install, push and versionate the projects. But if you need something 
 await multiproject.run("pwd");
 ```
 
+You can also use `multiproject.inject(functionOrCode)` with a function or a string to eval.
