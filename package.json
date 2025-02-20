@@ -1,6 +1,6 @@
 {
   "name": "@allnulled/multiproject-pusher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "To manage multiple (git) projects from 1 source",
   "main": "multiproject-pusher.js",
   "directories": {},
