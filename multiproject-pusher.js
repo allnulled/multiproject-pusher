@@ -81,6 +81,7 @@ class MultiprojectPusher {
   }
 
   async push(precommand = false) {
+    const message = await Readliner.ask("Put «commit message» for all projects: ");
     for (const project of this.projects) {
       const { name, path: projectPathInput, source, sourceType = "git" } = project;
       const projectPath = path.resolve(this.listBasepath, projectPathInput);
@@ -93,7 +94,6 @@ class MultiprojectPusher {
           console.log(`✅ No changes to commit for ${name}`);
           break Push_it; // Salta el commit si no hay cambios
         }
-        const message = await Readliner.ask("Put «commit message»: ");
         await this.executeCommand(`${ precommand ? precommand + " && " : ''}npm run build`, projectPath);
         await this.executeCommand(`${ precommand ? precommand + " && " : ''}npm run test`, projectPath);
         await this.executeCommand(`${ precommand ? precommand + " && " : ''}git add .`, projectPath);
